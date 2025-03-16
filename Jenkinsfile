@@ -39,16 +39,17 @@ pipeline {
 
         stage('Run API Tests') {
             steps {
-                bat 'C:\\PostmanCLI\\postman collection run C:\\path\\to\\your_collection.json -e C:\\path\\to\\your_environment.json'
+                bat '''
+                    if not exist reports mkdir reports
+                    C:\\PostmanCLI\\postman collection run C:\\path\\to\\your_collection.json -e C:\\path\\to\\your_environment.json --reporters json --reporter-json-export reports/postman-report.json
+                '''
             }
         }
     }
-}
 
-
-  post {
-    always {
-      archiveArtifacts artifacts: '**/newman/*.json', fingerprint: true
+    post {
+        always {
+            archiveArtifacts artifacts: 'reports/*.json', fingerprint: true
+        }
     }
-  }
 }
