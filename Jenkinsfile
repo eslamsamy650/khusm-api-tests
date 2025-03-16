@@ -1,7 +1,7 @@
 pipeline {
   agent any
 
-  tools {nodejs "node"}
+  tools { nodejs "node" }
 
   environment {
     POSTMAN_API_KEY = credentials('POSTMAN_API_KEY')  // Securely store API Key in Jenkins credentials
@@ -12,8 +12,8 @@ pipeline {
       steps {
         bat '''
           curl -o postman-cli.zip "https://dl-cli.pstmn.io/install/win64.zip"
-          mkdir C:\\PostmanCLI
-          tar -xf postman-cli.zip -C C:\\PostmanCLI || echo "Extraction failed"
+          if not exist C:\\PostmanCLI mkdir C:\\PostmanCLI
+          powershell -command "Expand-Archive -Path postman-cli.zip -DestinationPath C:\\PostmanCLI -Force" || echo "Extraction failed" && exit 1
           dir C:\\PostmanCLI
         '''
       }
@@ -22,7 +22,7 @@ pipeline {
     stage('Verify Installation') {
       steps {
         bat '''
-          if exist C:\\PostmanCLI\\postman.exe (
+          if exist C:\\PostmanCLI\\postman-cli.exe (
             echo "Postman CLI installed successfully"
           ) else (
             echo "Postman CLI installation failed" && exit 1
@@ -33,13 +33,13 @@ pipeline {
 
     stage('Login to Postman CLI') {
       steps {
-        bat 'C:\\PostmanCLI\\postman login --with-api-key %POSTMAN_API_KEY%'
+        bat 'C:\\PostmanCLI\\postman-cli login --with-api-key %POSTMAN_API_KEY%'
       }
     }
 
     stage('Run API Tests') {
       steps {
-        bat 'C:\\PostmanCLI\\postman collection run "Khusm API Testing.postman_collection.json" -e "Khusm API Environment.postman_environment.json"'
+        bat 'C:\\PostmanCLI\\postman-cli collection run "Khusm API Testing.postman_collection.json" -e "Khusm API Environment.postman_environment.json"'
       }
     }
   }
