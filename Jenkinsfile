@@ -30,11 +30,12 @@ pipeline {
       }
     }
 
-    stage('Login to Postman CLI') {
+  stage('Login to Postman CLI') {
   steps {
-    powershell 'Start-Process -NoNewWindow -FilePath "C:\\PostmanCLI\\postman.exe" -ArgumentList "login --with-api-key PMAK-xxxxx" -Wait'
+    bat 'C:\\PostmanCLI\\postman login --with-api-key PMAK-67d698f2970a0b000149635a-956387cb6911499266f4d4a08841fe8a42'
   }
 }
+
 
     stage('Run API Tests') {
       steps {
