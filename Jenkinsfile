@@ -1,7 +1,7 @@
 pipeline {
   agent any
 
-  tools {nodejs "node"}
+  tools {nodejs "NodeJS"}
 
   environment {
     POSTMAN_API_KEY = credentials('POSTMAN_API_KEY')  // Store API Key securely in Jenkins credentials
