@@ -12,8 +12,21 @@ pipeline {
       steps {
         bat '''
           curl -o postman-cli.zip "https://dl-cli.pstmn.io/install/win64.zip"
-          powershell -Command "Expand-Archive -Path postman-cli.zip -DestinationPath C:\\PostmanCLI -Force"
-          echo "Postman CLI Installed"
+          mkdir C:\\PostmanCLI
+          tar -xf postman-cli.zip -C C:\\PostmanCLI || echo "Extraction failed"
+          dir C:\\PostmanCLI
+        '''
+      }
+    }
+
+    stage('Verify Installation') {
+      steps {
+        bat '''
+          if exist C:\\PostmanCLI\\postman.exe (
+            echo "Postman CLI installed successfully"
+          ) else (
+            echo "Postman CLI installation failed" && exit 1
+          )
         '''
       }
     }
