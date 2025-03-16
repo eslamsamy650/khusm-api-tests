@@ -38,4 +38,14 @@ pipeline {
 
     stage('Run API Tests') {
       steps {
-    
+        bat 'C:\\PostmanCLI\\postman collection run "Khusm API Testing.postman_collection.json" -e "Khusm API Environment.postman_environment.json"'
+      }
+    }
+  }
+
+  post {
+    always {
+      archiveArtifacts artifacts: '**/newman/*.json', fingerprint: true
+    }
+  }
+}
