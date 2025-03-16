@@ -19,3 +19,8 @@ jobs:
 
       - name: Run API Tests
         run: newman run "https://api.postman.com/collections/14527260-2fc95af7-0b7a-4e2f-89a8-7f3dc2cc9c56?apikey=${{ secrets.POSTMAN_API_KEY }}"
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: API-Test-Report
+          path: report.html
