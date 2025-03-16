@@ -4,7 +4,7 @@ pipeline {
   tools {nodejs "node"}
 
   environment {
-    POSTMAN_API_KEY = credentials('API_KEY_ONE')  // Store API Key securely in Jenkins credentials
+    POSTMAN_API_KEY = credentials('POSTMAN_API_KEY')  // Store API Key securely in Jenkins credentials
   }
 
   stages {
