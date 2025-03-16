@@ -1,0 +1,21 @@
+name: Run API Tests with Newman
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run API Tests
+        run: newman run "https://api.postman.com/collections/14527260-2fc95af7-0b7a-4e2f-89a8-7f3dc2cc9c56?apikey=${{ secrets.POSTMAN_API_KEY }}"
