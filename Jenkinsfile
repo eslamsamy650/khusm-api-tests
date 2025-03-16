@@ -4,25 +4,29 @@ pipeline {
   tools {nodejs "node"}
 
   environment {
-    POSTMAN_API_KEY = credentials('POSTMAN_API_KEY')  // Store API Key securely in Jenkins credentials
+    POSTMAN_API_KEY = credentials('POSTMAN_API_KEY')  // Securely store API Key in Jenkins credentials
   }
 
   stages {
     stage('Install Postman CLI') {
       steps {
-        sh 'curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh'
+        bat '''
+          curl -o postman-cli.zip "https://dl-cli.pstmn.io/install/win64.zip"
+          powershell -Command "Expand-Archive -Path postman-cli.zip -DestinationPath C:\\PostmanCLI -Force"
+          echo "Postman CLI Installed"
+        '''
       }
     }
 
     stage('Login to Postman CLI') {
       steps {
-        sh 'postman login --with-api-key $POSTMAN_API_KEY'
+        bat 'C:\\PostmanCLI\\postman login --with-api-key %POSTMAN_API_KEY%'
       }
     }
 
     stage('Run API Tests') {
       steps {
-        sh 'postman collection run "Khusm API Testing.postman_collection.json" -e "Khusm API Environment.postman_environment.json"'
+        bat 'C:\\PostmanCLI\\postman collection run "Khusm API Testing.postman_collection.json" -e "Khusm API Environment.postman_environment.json"'
       }
     }
   }
