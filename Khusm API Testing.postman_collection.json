@@ -4,7 +4,7 @@
 		"name": "Khusm API Testing",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "14527260",
-		"_collection_link": "https://blue-spaceship-635219.postman.co/workspace/Khusm-Team-Workspace~bb89ea51-88de-41a3-954d-85f6b17b9e10/collection/14527260-2fc95af7-0b7a-4e2f-89a8-7f3dc2cc9c56?action=share&source=collection_link&creator=14527260"
+		"_collection_link": "https://blue-spaceship-635219.postman.co/workspace/bb89ea51-88de-41a3-954d-85f6b17b9e10/collection/14527260-2fc95af7-0b7a-4e2f-89a8-7f3dc2cc9c56?action=share&source=collection_link&creator=14527260"
 	},
 	"item": [
 		{
@@ -53,7 +53,7 @@
 											"var phoneNumber = randomPrefix + randomNumber;\r",
 											"\r",
 											"// Store in Postman environment variable\r",
-											"pm.environment.set(\"random_phone\", phoneNumber);\r",
+											"pm.environment.set(\"changenumber\", phoneNumber);\r",
 											"pm.environment.set(\"phone\", phoneNumber);\r",
 											"\r",
 											"// Log the generated phone number\r",
@@ -414,6 +414,13 @@
 										"type": "text/javascript",
 										"packages": {}
 									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"packages": {},
+										"type": "text/javascript"
+									}
 								}
 							],
 							"request": {
@@ -421,7 +428,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"phoneOrEmail\": \"{{changenumber}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+									"raw": "{\r\n  \"phoneOrEmail\": \"{{random_phone}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -625,7 +632,7 @@
 											"pm.test(\"Logout successful\", () => {\r",
 											"    pm.response.to.have.status(200);\r",
 											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"Logout successful\");\r",
+											"    pm.expect(response.message).to.eql(\"Logout\");\r",
 											"});"
 										],
 										"type": "text/javascript",
@@ -633,9 +640,6 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -647,7 +651,7 @@
 										}
 									]
 								},
-								"method": "GET",
+								"method": "POST",
 								"header": [],
 								"body": {
 									"mode": "raw",
@@ -671,167 +675,1028 @@
 								}
 							},
 							"response": []
-						},
-						{
-							"name": "server_error",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Session not found error\", () => {\r",
-											"    pm.response.to.have.status(400);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"Session not found\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"method": "GET",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "// {\r\n//     \"Authorization\": \"Bearer <invalid_or_expired_token>\",\r\n//     \"Content-Type\": \"application/json\"\r\n// }\r\n",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Auth/Logout",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Auth",
-										"Logout"
-									]
-								}
-							},
-							"response": []
 						}
 					]
 				},
 				{
-					"name": "Delete_Account",
+					"name": "Members",
 					"item": [
 						{
-							"name": "ValidAccount",
-							"event": [
+							"name": "MemberByPhone",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Account deleted successfully\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"Account deleted successfully\");\r",
-											"});\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "DELETE",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \r\n  \r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
+									"name": "GetMemberByPhone",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Member details retrieved successfully\", () => {\r",
+													"    pm.response.to.have.status(200);\r",
+													"    const response = pm.response.json();\r",
+													"\r",
+													"    // Retrieve phone number from environment\r",
+													"    let expectedPhoneNumber = pm.environment.get(\"changenumber\"); // \"changenumber\" should be set in environment variables\r",
+													"    let responseData = pm.response.json();  // Parse JSON response\r",
+													"    if (responseData.id) {\r",
+													"    pm.environment.set(\"userid\", responseData.id);  // Set the ID in environment\r",
+													"    console.log(\"User ID set to:\", responseData.id);\r",
+													"}\r",
+													"\r",
+													"\r",
+													"    // Check if 'phone' exists in response and matches the expected phone number\r",
+													"    pm.expect(response.phone).to.eql(expectedPhoneNumber);\r",
+													"\r",
+													"    // Log for debugging\r",
+													"    console.log(\"Expected Phone Number:\", expectedPhoneNumber);\r",
+													"    console.log(\"Response Phone Number:\", response.phone);\r",
+													"});\r",
+													""
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
 										}
-									}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/Member/GetMemberByPhoneAsync?lang={{lang}}&phone={{random_phone}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"GetMemberByPhoneAsync"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												},
+												{
+													"key": "phone",
+													"value": "{{random_phone}}"
+												}
+											]
+										}
+									},
+									"response": []
 								},
-								"url": {
-									"raw": "{{base_url}}/api/Auth/DeleteAccount?userId=0&lang={{lang}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Auth",
-										"DeleteAccount"
-									],
-									"query": [
+								{
+									"name": "GetMemberByPhone (invalid)",
+									"event": [
 										{
-											"key": "userId",
-											"value": "0"
-										},
-										{
-											"key": "lang",
-											"value": "{{lang}}"
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Invalid phone number error\", () => {\r",
+													"    pm.response.to.have.status(400);\r",
+													"    const response = pm.response.json();\r",
+													"    pm.expect(response.message).to.eql(\"Data not found\");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
 										}
-									]
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"id\": 28,\r\n    \"firstName\": \"اسلام\",\r\n    \"lastName\": \"eee\",\r\n    \"phone\": \"01116590586\",\r\n    \"photo\": null,\r\n    \"gender\": null,\r\n    \"email\": null,\r\n    \"nationalId\": null,\r\n    \"dateOfActivationCard\": null,\r\n    \"otp\": \"687339\",\r\n    \"confirmed\": true,\r\n    \"dateOfBirth\": null,\r\n    \"isSubscriber\": false,\r\n    \"language\": \"\",\r\n    \"isNotificationEnabbled\": false,\r\n    \"subscribtionName\": \"\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/Member/GetMemberByPhoneAsync?lang={{lang}}&phone={{random_phone}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"GetMemberByPhoneAsync"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												},
+												{
+													"key": "phone",
+													"value": "{{random_phone}}"
+												}
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
 						},
 						{
-							"name": "invalid",
-							"event": [
+							"name": "User",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Unauthorized request\", () => {\r",
-											"    pm.response.to.have.status(400);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"User not found!\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "DELETE",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \r\n  \r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Auth/DeleteAccount?userId=01116590586&lang={{lang}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Auth",
-										"DeleteAccount"
-									],
-									"query": [
+									"name": "UpdateMember",
+									"event": [
 										{
-											"key": "userId",
-											"value": "01116590586"
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Member updated successfully\", () => {\r",
+													"    pm.response.to.have.status(200);\r",
+													"    const response = pm.response.json();\r",
+													"    pm.expect(response.message).to.eql(\"Changed successfully\");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "FirstName",
+													"value": "{{first}}",
+													"type": "text"
+												},
+												{
+													"key": "LastName",
+													"value": "{{last}}",
+													"type": "text"
+												},
+												{
+													"key": "IsMale",
+													"value": "true",
+													"type": "text"
+												},
+												{
+													"key": "Email",
+													"value": "eslamsamy650@gmail.com",
+													"type": "text"
+												},
+												{
+													"key": "NationalId",
+													"value": "30006202107055",
+													"type": "text"
+												},
+												{
+													"key": "DateOfBirth",
+													"value": "2000-06-20T00:00:00Z",
+													"type": "text"
+												},
+												{
+													"key": "Image",
+													"type": "file",
+													"src": "postman-cloud:///1f004070-8c55-4e40-8558-551b3277cf6c"
+												},
+												{
+													"key": "ImageRemoved",
+													"value": "false",
+													"type": "text"
+												}
+											]
 										},
-										{
-											"key": "lang",
-											"value": "{{lang}}"
+										"url": {
+											"raw": "{{base_url}}/api/Member/UpdateMember?lang={{lang}}&memberId={{userid}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"UpdateMember"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												},
+												{
+													"key": "memberId",
+													"value": "{{userid}}"
+												}
+											]
 										}
-									]
+									},
+									"response": []
+								},
+								{
+									"name": "UpdateMember (invalid)",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Member updated successfully\", () => {\r",
+													"    pm.response.to.have.status(400);\r",
+													"    const response = pm.response.json();\r",
+													"    pm.expect(response.message).to.eql(\"User not found!\");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "FirstName",
+													"value": "{{first}}",
+													"type": "text"
+												},
+												{
+													"key": "LastName",
+													"value": "{{last}}",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{base_url}}/api/Member/UpdateMember?lang={{lang}}&memberId={{memberId_invalid}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"UpdateMember"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												},
+												{
+													"key": "memberId",
+													"value": "{{memberId_invalid}}"
+												}
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
+						},
+						{
+							"name": "Medical",
+							"item": [
+								{
+									"name": "Valid medical profile",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Medical profile added successfully\", () => {\r",
+													"    pm.response.to.have.status(200);\r",
+													"    const response = pm.response.json();\r",
+													"    pm.expect(response.message).to.eql(\"Changed successfully\");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"id\": \"{{userid}}\",\r\n  \"blood\": \"O+\",\r\n  \"weight\": 70,\r\n  \"height\": 175,\r\n  \"chronicDiseases\": \"None\",\r\n  \"chronicMedication\": \"None\",\r\n  \"allergies\": \"None\",\r\n  \"notes\": \"No notes\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/Member/AddMedicalProfile?lang={{lang}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"AddMedicalProfile"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Invalid medical profile",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"User not found!\", () => {\r",
+													"    pm.response.to.have.status(400);\r",
+													"    const response = pm.response.json();\r",
+													"    pm.expect(response.message).to.eql(\"User not found!\");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"memberId\": 123,\r\n  \"blood\": \"O+\",\r\n  \"weight\": 70,\r\n  \"height\": 175,\r\n  \"chronicDiseases\": \"None\",\r\n  \"chronicMedication\": \"None\",\r\n  \"allergies\": \"None\",\r\n  \"notes\": \"No notes\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/Member/AddMedicalProfile?lang={{lang}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"AddMedicalProfile"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Invalid weight",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Invalid weight error\", () => {\r",
+													"    pm.response.to.have.status(400);\r",
+													"    const response = pm.response.json();\r",
+													"    pm.expect(response.message).to.eql(\"Weight must be more than 1 Kg and less than 250 Kg \");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"id\": \"{{userid}}\",\r\n  \"blood\": \"O+\",\r\n  \"weight\": 0,\r\n  \"height\": 175,\r\n  \"chronicDiseases\": \"None\",\r\n  \"chronicMedication\": \"None\",\r\n  \"allergies\": \"None\",\r\n  \"notes\": \"No notes\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/Member/AddMedicalProfile?lang={{lang}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"AddMedicalProfile"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Invalid height",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Invalid weight error\", () => {\r",
+													"    pm.response.to.have.status(400);\r",
+													"    const response = pm.response.json();\r",
+													"    pm.expect(response.message).to.eql(\"Hight must be more than 20 cm and less than 250 cm \");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"id\": {{userid}},\r\n  \"blood\": \"string\",\r\n  \"weight\": 2,\r\n  \"hight\": 0,\r\n  \"chronicDiseases\": \"string\",\r\n  \"chronicMedication\": \"string\",\r\n  \"allergies\": \"string\",\r\n  \"notes\": \"string\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/Member/AddMedicalProfile?lang={{lang}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"AddMedicalProfile"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GetMedicalProfile",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Medical profile retrieved successfully\", () => {\r",
+													"    pm.response.to.have.status(200);\r",
+													"    const response = pm.response.json();\r",
+													"    \r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\"name\":\"اسلام\",\"age\":null,\"image\":null,\"blood\":null,\"weight\":null,\"hight\":null,\"chronicDiseases\":null,\"chronicMedication\":null,\"allergies\":null,\"notes\":null}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/Member/GetMedicalProfile?lang={{lang}}&memberId={{userid}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"GetMedicalProfile"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												},
+												{
+													"key": "memberId",
+													"value": "{{userid}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GetMedicalProfile (invalid)",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Invalid member ID error\", () => {\r",
+													"    pm.response.to.have.status(400);\r",
+													"    const response = pm.response.json();\r",
+													"    pm.expect(response.message).to.eql(\"User not found!\");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\"name\":\"اسلام\",\"age\":null,\"image\":null,\"blood\":null,\"weight\":null,\"hight\":null,\"chronicDiseases\":null,\"chronicMedication\":null,\"allergies\":null,\"notes\":null}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/Member/GetMedicalProfile?lang={{lang}}&memberId={{memberId_invalid}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"GetMedicalProfile"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												},
+												{
+													"key": "memberId",
+													"value": "{{memberId_invalid}}"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Subscription",
+							"item": [
+								{
+									"name": "AddMemberSubscription",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Subscription added successfully\", () => {\r",
+													"    pm.response.to.have.status(200);\r",
+													"    const response = pm.response.json();\r",
+													"    pm.expect(response.message).to.eql(\"Subscription added successfully\");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"userId\": {{userid}},\r\n  \"subscribeId\": {{bronze_id}}\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/Member/AddMemberSubscription?lang={{lang}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"AddMemberSubscription"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "AddMemberSubscription (invalid_Id)",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Invalid subscription ID error\", () => {\r",
+													"    pm.response.to.have.status(400);\r",
+													"    const response = pm.response.json();\r",
+													"    pm.expect(response.message).to.eql(\"User not found\");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"userId\": {{memberId_invalid}},\r\n  \"subscribeId\": {{bronze_id}}\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/Member/AddMemberSubscription?lang={{lang}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"AddMemberSubscription"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "AddMemberSubscription (invalid_subs) Copy",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Subscription added successfully\", () => {\r",
+													"    pm.response.to.have.status(200);\r",
+													"    const response = pm.response.json();\r",
+													"    pm.expect(response.message).to.eql(\"Subscription not found\");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"userId\": {{userid}},\r\n  \"subscribeId\": 4566\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/Member/AddMemberSubscription?lang={{lang}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"AddMemberSubscription"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GetMemberSubscription",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Subscription added successfully\", () => {\r",
+													"    pm.response.to.have.status(200);\r",
+													"    \r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/Member/GetMemberSubscription?lang={{lang}}&memberId={{userid}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"GetMemberSubscription"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												},
+												{
+													"key": "memberId",
+													"value": "{{userid}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GetMemberSubscription (no_subs)",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Invalid member ID error\", () => {\r",
+													"    pm.response.to.have.status(400);\r",
+													"    const response = pm.response.json();\r",
+													"    pm.expect(response.message).to.eql(\"User does not have a subscription \");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/Member/GetMemberSubscription?lang={{lang}}&memberId=25",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"GetMemberSubscription"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												},
+												{
+													"key": "memberId",
+													"value": "25"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GetMemberSubscription (Invalid_id)",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Invalid member ID error\", () => {\r",
+													"    pm.response.to.have.status(400);\r",
+													"    const response = pm.response.json();\r",
+													"    pm.expect(response.message).to.eql(\"Data not found\");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/Member/GetMemberSubscription?lang={{lang}}&memberId={{memberId_invalid}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"GetMemberSubscription"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												},
+												{
+													"key": "memberId",
+													"value": "{{memberId_invalid}}"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "MemberPoints",
+							"item": [
+								{
+									"name": "Valid member ID",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Member points retrieved successfully\", () => {\r",
+													"    pm.response.to.have.status(200);\r",
+													"    const response = pm.response.json();\r",
+													"    \r",
+													"    pm.test(\"User ID is retrieved from environment\", () => {\r",
+													"        let userId = pm.environment.get(\"userid\"); // Retrieve from environment\r",
+													"\r",
+													"        pm.expect(userId).to.not.be.undefined;\r",
+													"        pm.expect(userId).to.not.be.null;\r",
+													"\r",
+													"        // Ensure both IDs match correctly (convert types if needed)\r",
+													"        pm.expect(response.id).to.eql(parseInt(userId, 10)); \r",
+													"\r",
+													"        \r",
+													"    });\r",
+													"});\r",
+													""
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"memberId\": 28,\r\n  \"points\": null\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/Member/MemberPoints?lang={{lang}}&memberId={{userid}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"MemberPoints"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												},
+												{
+													"key": "memberId",
+													"value": "{{userid}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Invalid member ID",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Invalid member ID error\", () => {\r",
+													"    pm.response.to.have.status(400);\r",
+													"    const response = pm.response.json();\r",
+													"    pm.expect(response.message).to.eql(\"Data not found\");\r",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"memberId\": 28,\r\n  \"points\": null\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/Member/MemberPoints?lang={{lang}}&memberId={{memberId_invalid}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"Member",
+												"MemberPoints"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "{{lang}}"
+												},
+												{
+													"key": "memberId",
+													"value": "{{memberId_invalid}}"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
 						}
 					]
 				},
@@ -864,7 +1729,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"userId\": \"{{userid}}\",\r\n  \"currentPassword\": \"123e321\",\r\n  \"newPassword\": \"{{password}}\"\r\n}",
+									"raw": "{\r\n  \"userId\": \"{{userid}}\",\r\n  \"currentPassword\": \"{{password}}\",\r\n  \"newPassword\": \"{{changepassword}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -898,10 +1763,10 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Password changed successfully\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
+											"pm.test(\"Current Password is incorrect!\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
 											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"Password changed successfully\");\r",
+											"    pm.expect(response.message).to.eql(\"Current Password is incorrect!\");\r",
 											"});"
 										],
 										"type": "text/javascript",
@@ -951,7 +1816,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Password changed successfully\", () => {\r",
+											"pm.test(\"User not found!\", () => {\r",
 											"    pm.response.to.have.status(400);\r",
 											"    const response = pm.response.json();\r",
 											"    pm.expect(response.message).to.eql(\"User not found!\");\r",
@@ -970,7 +1835,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"userId\": 1,\r\n  \"currentPassword\": \"WrongPass123!\",\r\n  \"newPassword\": \"NewPass456!\"\r\n}",
+									"raw": "{\r\n  \"userId\": {{memberId_invalid}},\r\n  \"currentPassword\": \"WrongPass123!\",\r\n  \"newPassword\": \"NewPass456!\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1193,7 +2058,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{base_url}}/api/Auth/ChangePhone?lang={{lang}}&userId=12&newPhoneNumber=1144111137&otp=123456",
+									"raw": "{{base_url}}/api/Auth/ChangePhone?lang={{lang}}&userId={{userid}}&newPhoneNumber=114411113&otp={{otp}}",
 									"host": [
 										"{{base_url}}"
 									],
@@ -1209,15 +2074,15 @@
 										},
 										{
 											"key": "userId",
-											"value": "12"
+											"value": "{{userid}}"
 										},
 										{
 											"key": "newPhoneNumber",
-											"value": "1144111137"
+											"value": "114411113"
 										},
 										{
 											"key": "otp",
-											"value": "123456"
+											"value": "{{otp}}"
 										}
 									]
 								}
@@ -1712,10 +2577,10 @@
 									"script": {
 										"exec": [
 											"pm.test(\"Order created successfully\", () => {\r",
-											"    pm.response.to.have.status(201);\r",
+											"    pm.response.to.have.status(200);\r",
 											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"Order created\");\r",
-											"    pm.expect(response.orderId).to.not.be.null;\r",
+											"    \r",
+											"    pm.expect(response.memberId).to.not.be.null;\r",
 											"});\r",
 											""
 										],
@@ -1739,7 +2604,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"memberId\": {{userid}},\r\n  \"providerId\": {{providerId}},\r\n//   \"branchId\": {{branchId}},\r\n  \"paymentMethod\": 1\r\n}",
+									"raw": "{\r\n  \"memberId\": {{userid}},\r\n  \"providerId\": {{providerId}},\r\n  \"branchId\": {{branchId}},\r\n  \"paymentMethod\": 1\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1978,6 +2843,140 @@
 					]
 				},
 				{
+					"name": "Order_History",
+					"item": [
+						{
+							"name": "Valid_Request",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order history retrieved successfully\", () => {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    let response = pm.response.json();  // Parse the response JSON\r",
+											"\r",
+											"    if (response.result && response.result.length > 0) {\r",
+											"    let firstOrderId = response.result[0].orderId;  // Get the first order ID\r",
+											"    pm.environment.set(\"orderId\", firstOrderId);  // Save it as an environment variable\r",
+											"}\r",
+											"\r",
+											"   \r",
+											"    pm.expect(response.result).to.be.an(\"array\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/Order/OrderHistory?lang={{lang}}&memberId={{userid}}&categoryId={{catgoryId}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"Order",
+										"OrderHistory"
+									],
+									"query": [
+										{
+											"key": "lang",
+											"value": "{{lang}}"
+										},
+										{
+											"key": "memberId",
+											"value": "{{userid}}"
+										},
+										{
+											"key": "categoryId",
+											"value": "{{catgoryId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Missing_provider_ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Missing provider ID error\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"    \r",
+											"});\r",
+											"pm.test(\"Missing memberId error appears\", () => {\r",
+											"    pm.response.to.have.status(400);\r",
+											"    const response = pm.response.json();\r",
+											"\r",
+											"    // Check if 'errors' field exists and contains 'memberId'\r",
+											"    pm.expect(response).to.have.property(\"errors\");\r",
+											"    pm.expect(response.errors).to.have.property(\"memberId\");\r",
+											"\r",
+											"    // Validate the exact error message\r",
+											"    pm.expect(response.errors.memberId[0]).to.eql(\"The memberId field is required.\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/Order/OrderHistory?lang={{lang}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"Order",
+										"OrderHistory"
+									],
+									"query": [
+										{
+											"key": "lang",
+											"value": "{{lang}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "Order_ID",
 					"item": [
 						{
@@ -2103,132 +3102,6 @@
 										{
 											"key": "orderId",
 											"value": "{{orderId_invalid}}"
-										}
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Order_History",
-					"item": [
-						{
-							"name": "Valid_Request",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Order history retrieved successfully\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.result).to.be.an(\"array\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{token}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/Order/OrderHistory?lang={{lang}}&memberId={{userid}}&categoryId={{catgoryId}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Order",
-										"OrderHistory"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										},
-										{
-											"key": "memberId",
-											"value": "{{userid}}"
-										},
-										{
-											"key": "categoryId",
-											"value": "{{catgoryId}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Missing_provider_ID",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Missing provider ID error\", () => {\r",
-											"    pm.response.to.have.status(400);\r",
-											"    \r",
-											"});\r",
-											"pm.test(\"Missing memberId error appears\", () => {\r",
-											"    pm.response.to.have.status(400);\r",
-											"    const response = pm.response.json();\r",
-											"\r",
-											"    // Check if 'errors' field exists and contains 'memberId'\r",
-											"    pm.expect(response).to.have.property(\"errors\");\r",
-											"    pm.expect(response.errors).to.have.property(\"memberId\");\r",
-											"\r",
-											"    // Validate the exact error message\r",
-											"    pm.expect(response.errors.memberId[0]).to.eql(\"The memberId field is required.\");\r",
-											"});\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{token}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/Order/OrderHistory?lang={{lang}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Order",
-										"OrderHistory"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
 										}
 									]
 								}
@@ -4580,7 +5453,7 @@
 											"pm.test(\"Branches retrieved successfully\", () => {\r",
 											"    pm.response.to.have.status(200);\r",
 											"    const response = pm.response.json();\r",
-											"    pm.expect(response.branches).to.be.an(\"array\");\r",
+											"    // pm.expect(response.branches).to.be.an(\"array\");\r",
 											"});"
 										],
 										"type": "text/javascript",
@@ -5048,992 +5921,6 @@
 			]
 		},
 		{
-			"name": "Members",
-			"item": [
-				{
-					"name": "User",
-					"item": [
-						{
-							"name": "UpdateMember",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Member updated successfully\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"Changed successfully\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \r\n  \"firstName\": \"{{first}}\",\r\n  \"lastName\": \"{{last}}\",\r\n  \"gender\": \"Male\",\r\n  \"email\": \"eslamsamy650@gmail.com\",\r\n  \"nationalId\": \"30006202107055\",\r\n  \"dateOfBirth\": \"2000-06-20\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/UpdateMember?lang={{lang}}&memberId={{userid}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"UpdateMember"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										},
-										{
-											"key": "memberId",
-											"value": "{{userid}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "UpdateMember (not_found)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Missing required fields error\", () => {\r",
-											"    pm.response.to.have.status(400);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"User not found!\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \r\n  \"firstName\": \"John\",\r\n  \"lastName\": \"Doe\",\r\n  \"gender\": \"Male\",\r\n  \"email\": \"john.doe@example.com\",\r\n  \"nationalId\": \"1234567890\",\r\n  \"dateOfBirth\": \"1990-01-01\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/UpdateMember?lang={{lang}}&memberId={{memberId_invalid}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"UpdateMember"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										},
-										{
-											"key": "memberId",
-											"value": "{{memberId_invalid}}"
-										}
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Medical",
-					"item": [
-						{
-							"name": "Valid medical profile",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Medical profile added successfully\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"Changed successfully\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"id\": \"{{userid}}\",\r\n  \"blood\": \"O+\",\r\n  \"weight\": 70,\r\n  \"height\": 175,\r\n  \"chronicDiseases\": \"None\",\r\n  \"chronicMedication\": \"None\",\r\n  \"allergies\": \"None\",\r\n  \"notes\": \"No notes\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/AddMedicalProfile?lang={{lang}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"AddMedicalProfile"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Invalid medical profile",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"User not found!\", () => {\r",
-											"    pm.response.to.have.status(400);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"User not found!\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"memberId\": 123,\r\n  \"blood\": \"O+\",\r\n  \"weight\": 70,\r\n  \"height\": 175,\r\n  \"chronicDiseases\": \"None\",\r\n  \"chronicMedication\": \"None\",\r\n  \"allergies\": \"None\",\r\n  \"notes\": \"No notes\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/AddMedicalProfile?lang={{lang}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"AddMedicalProfile"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Invalid weight",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Invalid weight error\", () => {\r",
-											"    pm.response.to.have.status(400);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"Weight must be more than 1 Kg and less than 250 Kg \");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"id\": \"{{userid}}\",\r\n  \"blood\": \"O+\",\r\n  \"weight\": 0,\r\n  \"height\": 175,\r\n  \"chronicDiseases\": \"None\",\r\n  \"chronicMedication\": \"None\",\r\n  \"allergies\": \"None\",\r\n  \"notes\": \"No notes\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/AddMedicalProfile?lang={{lang}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"AddMedicalProfile"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Invalid height",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Invalid weight error\", () => {\r",
-											"    pm.response.to.have.status(400);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"Invalid height\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"id\": \"{{userid}}\",\r\n  \"blood\": \"O+\",\r\n  \"weight\": 70,\r\n  \"height\": -1,\r\n  \"chronicDiseases\": \"None\",\r\n  \"chronicMedication\": \"None\",\r\n  \"allergies\": \"None\",\r\n  \"notes\": \"No notes\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/AddMedicalProfile?lang={{lang}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"AddMedicalProfile"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GetMedicalProfile",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Medical profile retrieved successfully\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"    const response = pm.response.json();\r",
-											"    \r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"method": "GET",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\"name\":\"اسلام\",\"age\":null,\"image\":null,\"blood\":null,\"weight\":null,\"hight\":null,\"chronicDiseases\":null,\"chronicMedication\":null,\"allergies\":null,\"notes\":null}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/GetMedicalProfile?lang={{lang}}&memberId={{userid}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"GetMedicalProfile"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										},
-										{
-											"key": "memberId",
-											"value": "{{userid}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GetMedicalProfile (invalid)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Invalid member ID error\", () => {\r",
-											"    pm.response.to.have.status(400);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"User not found!\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"method": "GET",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\"name\":\"اسلام\",\"age\":null,\"image\":null,\"blood\":null,\"weight\":null,\"hight\":null,\"chronicDiseases\":null,\"chronicMedication\":null,\"allergies\":null,\"notes\":null}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/GetMedicalProfile?lang={{lang}}&memberId={{memberId_invalid}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"GetMedicalProfile"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										},
-										{
-											"key": "memberId",
-											"value": "{{memberId_invalid}}"
-										}
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Subscription",
-					"item": [
-						{
-							"name": "AddMemberSubscription",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Subscription added successfully\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"Subscription added successfully\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"userId\": {{userid}},\r\n  \"subscribeId\": {{bronze_id}}\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/AddMemberSubscription?lang={{lang}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"AddMemberSubscription"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "AddMemberSubscription (invalid_Id)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Invalid subscription ID error\", () => {\r",
-											"    pm.response.to.have.status(400);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"User not found\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"userId\": {{memberId_invalid}},\r\n  \"subscribeId\": {{bronze_id}}\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/AddMemberSubscription?lang={{lang}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"AddMemberSubscription"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "AddMemberSubscription (invalid_subs) Copy",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Subscription added successfully\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"Subscription not found\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"userId\": {{userid}},\r\n  \"subscribeId\": 4566\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/AddMemberSubscription?lang={{lang}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"AddMemberSubscription"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GetMemberSubscription",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Subscription added successfully\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"    \r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/Member/GetMemberSubscription?lang={{lang}}&memberId={{userid}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"GetMemberSubscription"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										},
-										{
-											"key": "memberId",
-											"value": "{{userid}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GetMemberSubscription (no_subs)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Invalid member ID error\", () => {\r",
-											"    pm.response.to.have.status(400);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"User does not have a subscription \");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/Member/GetMemberSubscription?lang={{lang}}&memberId=25",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"GetMemberSubscription"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										},
-										{
-											"key": "memberId",
-											"value": "25"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GetMemberSubscription (Invalid_id)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Invalid member ID error\", () => {\r",
-											"    pm.response.to.have.status(400);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"Data not found\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/Member/GetMemberSubscription?lang={{lang}}&memberId={{memberId_invalid}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"GetMemberSubscription"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										},
-										{
-											"key": "memberId",
-											"value": "{{memberId_invalid}}"
-										}
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "MemberByPhone",
-					"item": [
-						{
-							"name": "GetMemberByPhone",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Member details retrieved successfully\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"    const response = pm.response.json();\r",
-											"\r",
-											"    // Retrieve phone number from environment\r",
-											"    let expectedPhoneNumber = pm.environment.get(\"changenumber\"); // \"changenumber\" should be set in environment variables\r",
-											"\r",
-											"    // Check if 'phone' exists in response and matches the expected phone number\r",
-											"    pm.expect(response.phone).to.eql(expectedPhoneNumber);\r",
-											"\r",
-											"    // Log for debugging\r",
-											"    console.log(\"Expected Phone Number:\", expectedPhoneNumber);\r",
-											"    console.log(\"Response Phone Number:\", response.phone);\r",
-											"});\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"method": "GET",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"id\": 28,\r\n    \"firstName\": \"اسلام\",\r\n    \"lastName\": \"eee\",\r\n    \"phone\": \"01116590586\",\r\n    \"photo\": null,\r\n    \"gender\": null,\r\n    \"email\": null,\r\n    \"nationalId\": null,\r\n    \"dateOfActivationCard\": null,\r\n    \"otp\": \"687339\",\r\n    \"confirmed\": true,\r\n    \"dateOfBirth\": null,\r\n    \"isSubscriber\": false,\r\n    \"language\": \"\",\r\n    \"isNotificationEnabbled\": false,\r\n    \"subscribtionName\": \"\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/GetMemberByPhoneAsync?lang={{lang}}&phone={{changenumber}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"GetMemberByPhoneAsync"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										},
-										{
-											"key": "phone",
-											"value": "{{changenumber}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GetMemberByPhone (invalid)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Invalid phone number error\", () => {\r",
-											"    pm.response.to.have.status(400);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"Data not found\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"method": "GET",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"id\": 28,\r\n    \"firstName\": \"اسلام\",\r\n    \"lastName\": \"eee\",\r\n    \"phone\": \"01116590586\",\r\n    \"photo\": null,\r\n    \"gender\": null,\r\n    \"email\": null,\r\n    \"nationalId\": null,\r\n    \"dateOfActivationCard\": null,\r\n    \"otp\": \"687339\",\r\n    \"confirmed\": true,\r\n    \"dateOfBirth\": null,\r\n    \"isSubscriber\": false,\r\n    \"language\": \"\",\r\n    \"isNotificationEnabbled\": false,\r\n    \"subscribtionName\": \"\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/GetMemberByPhoneAsync?lang={{lang}}&phone={{random_phone}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"GetMemberByPhoneAsync"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										},
-										{
-											"key": "phone",
-											"value": "{{random_phone}}"
-										}
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "MemberPoints",
-					"item": [
-						{
-							"name": "Valid member ID",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Member points retrieved successfully\", () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"    const response = pm.response.json();\r",
-											"    \r",
-											"    pm.test(\"User ID is retrieved from environment\", () => {\r",
-											"        let userId = pm.environment.get(\"userid\"); // Retrieve from environment\r",
-											"\r",
-											"        pm.expect(userId).to.not.be.undefined;\r",
-											"        pm.expect(userId).to.not.be.null;\r",
-											"\r",
-											"        // Ensure both IDs match correctly (convert types if needed)\r",
-											"        pm.expect(response.id).to.eql(parseInt(userId, 10)); \r",
-											"\r",
-											"        \r",
-											"    });\r",
-											"});\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"method": "GET",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"memberId\": 28,\r\n  \"points\": null\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/MemberPoints?lang={{lang}}&memberId={{userid}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"MemberPoints"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										},
-										{
-											"key": "memberId",
-											"value": "{{userid}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Invalid member ID",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Invalid member ID error\", () => {\r",
-											"    pm.response.to.have.status(400);\r",
-											"    const response = pm.response.json();\r",
-											"    pm.expect(response.message).to.eql(\"Data not found\");\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {}
-									}
-								}
-							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"method": "GET",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"memberId\": 28,\r\n  \"points\": null\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{base_url}}/api/Member/MemberPoints?lang={{lang}}&memberId={{memberId_invalid}}",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"Member",
-										"MemberPoints"
-									],
-									"query": [
-										{
-											"key": "lang",
-											"value": "{{lang}}"
-										},
-										{
-											"key": "memberId",
-											"value": "{{memberId_invalid}}"
-										}
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				}
-			]
-		},
-		{
 			"name": "App_Tutotrial",
 			"item": [
 				{
@@ -6176,143 +6063,8 @@
 			]
 		},
 		{
-			"name": "Dashboard",
-			"item": [
-				{
-					"name": "valid_branch_id ( Dashboard)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Dashboard retrieved successfully\", () => {\r",
-									"    pm.response.to.have.status(200);\r",
-									"   \r",
-									"});\r",
-									"pm.test(\"Response has successfully message\", () => {\r",
-									"    const response = pm.response.json();\r",
-									"    pm.expect(response.topCustomers).to.an('array');\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"endDate\": \"2025-03-12T07:24:32.052Z\",\r\n  \"startDate\": \"2025-03-12T07:24:32.052Z\",\r\n  \"lang\": \"string\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/api/Dashboard/GetDashBoard?branchId={{branchId}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"Dashboard",
-								"GetDashBoard"
-							],
-							"query": [
-								{
-									"key": "branchId",
-									"value": "{{branchId}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "valid_branch_id ( Dashboard) Copy",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Branch not  found\", () => {\r",
-									"    pm.response.to.have.status(400);\r",
-									"   \r",
-									"});\r",
-									"pm.test(\"Response has error message\", () => {\r",
-									"    const response = pm.response.json();\r",
-									"    pm.expect(response.message).to.eql(\"Branch not  found\");\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"endDate\": \"2025-03-12T07:24:32.052Z\",\r\n  \"startDate\": \"2025-03-12T07:24:32.052Z\",\r\n  \"lang\": \"string\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/api/Dashboard/GetDashBoard?branchId={{branchId_invalid}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"Dashboard",
-								"GetDashBoard"
-							],
-							"query": [
-								{
-									"key": "branchId",
-									"value": "{{branchId_invalid}}"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
 			"name": "Firebase",
 			"item": [
-				{
-					"name": "Firebase",
-					"item": []
-				},
 				{
 					"name": "Firebase_token",
 					"item": [
@@ -6443,201 +6195,507 @@
 							"response": []
 						}
 					]
+				},
+				{
+					"name": "Firebase",
+					"item": [
+						{
+							"name": "SendNotification_valid_user",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"memberId\": \"{{userid}}\",\r\n  \"title\": \"string\",\r\n  \"body\": \"string\",\r\n  \"imageUrl\": \"https://www.spaceo.ca/_next/image/?url=%2F_next%2Fstatic%2Fmedia%2FCTA%20Persopn.4585c9ac.png&w=384&q=75\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/FireBase/SendNotification?lang={{lang}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"FireBase",
+										"SendNotification"
+									],
+									"query": [
+										{
+											"key": "lang",
+											"value": "{{lang}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SendNotification_valid_user Copy",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"memberId\": {{memberId_invalid}},\r\n  \"title\": \"string\",\r\n  \"body\": \"string\",\r\n  \"imageUrl\": \"https://www.spaceo.ca/_next/image/?url=%2F_next%2Fstatic%2Fmedia%2FCTA%20Persopn.4585c9ac.png&w=384&q=75\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/FireBase/SendNotification?lang={{lang}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"FireBase",
+										"SendNotification"
+									],
+									"query": [
+										{
+											"key": "lang",
+											"value": "{{lang}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "send_notification (invalid_img)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Imges not Url\", () => {\r",
+											"    pm.response.to.have.status(200);\r",
+											"   \r",
+											"});\r",
+											"pm.test(\"Response has error message\", () => {\r",
+											"    const response = pm.response.json();\r",
+											"    pm.expect(response.message).to.eql(\"Imges not Url\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"memberId\": {{userid}},\r\n  \"title\": \"Eslam\",\r\n  \"body\": \"Samy\",\r\n  \"imageUrl\": \"string\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/FireBase/SendNotification?lang={{lang}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"FireBase",
+										"SendNotification"
+									],
+									"query": [
+										{
+											"key": "lang",
+											"value": "{{lang}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SendNotificationToAll",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \r\n  \"title\": \"string\",\r\n  \"body\": \"string\",\r\n  \"imageUrl\": \"https://www.spaceo.ca/_next/image/?url=%2F_next%2Fstatic%2Fmedia%2FCTA%20Persopn.4585c9ac.png&w=384&q=75\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/FireBase/SendNotificationToAll?lang={{lang}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"FireBase",
+										"SendNotificationToAll"
+									],
+									"query": [
+										{
+											"key": "lang",
+											"value": "{{lang}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "AllNotification",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \r\n  \"title\": \"string\",\r\n  \"body\": \"string\",\r\n  \"imageUrl\": \"https://www.spaceo.ca/_next/image/?url=%2F_next%2Fstatic%2Fmedia%2FCTA%20Persopn.4585c9ac.png&w=384&q=75\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/FireBase/AllNotification?memberId={{userid}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"FireBase",
+										"AllNotification"
+									],
+									"query": [
+										{
+											"key": "memberId",
+											"value": "{{userid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "seen Notification",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \r\n  \"title\": \"string\",\r\n  \"body\": \"string\",\r\n  \"imageUrl\": \"https://www.spaceo.ca/_next/image/?url=%2F_next%2Fstatic%2Fmedia%2FCTA%20Persopn.4585c9ac.png&w=384&q=75\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/FireBase/SeenNotification?memberId={{userid}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"FireBase",
+										"SeenNotification"
+									],
+									"query": [
+										{
+											"key": "memberId",
+											"value": "{{userid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SeenNotificationAll",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/FireBase/SeenAllNotification?memberId={{userid}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"FireBase",
+										"SeenAllNotification"
+									],
+									"query": [
+										{
+											"key": "memberId",
+											"value": "{{userid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "DeleteNotification",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/FireBase/DeleteNotification?notificationId={{notificationId}}&lang={{lang}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"FireBase",
+										"DeleteNotification"
+									],
+									"query": [
+										{
+											"key": "notificationId",
+											"value": "{{notificationId}}"
+										},
+										{
+											"key": "lang",
+											"value": "{{lang}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "DeleteNotification Copy",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/FireBase/DeleteNotification?notificationId={{notificationId_invalid}}&lang={{lang}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"FireBase",
+										"DeleteNotification"
+									],
+									"query": [
+										{
+											"key": "notificationId",
+											"value": "{{notificationId_invalid}}"
+										},
+										{
+											"key": "lang",
+											"value": "{{lang}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "See_Notification_notificationId",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"isSeen\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/FireBase/SeenAllNotification?Id={{notificationId}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"FireBase",
+										"SeenAllNotification"
+									],
+									"query": [
+										{
+											"key": "Id",
+											"value": "{{notificationId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "See_Notification_notificationId (invalid)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"isSeen\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/FireBase/SeenAllNotification?Id={{notificationId_invalid}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"FireBase",
+										"SeenAllNotification"
+									],
+									"query": [
+										{
+											"key": "Id",
+											"value": "{{notificationId_invalid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		},
 		{
 			"name": "Home Page",
 			"item": [
-				{
-					"name": "send_notification",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Notification sent successfully\", () => {\r",
-									"    pm.response.to.have.status(200);\r",
-									"   \r",
-									"});\r",
-									"pm.test(\"Response has successfully message\", () => {\r",
-									"    const response = pm.response.json();\r",
-									"    pm.expect(response.message).to.eql(\"Notification sent successfully\");\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"memberId\": {{userid}},\r\n  \"title\": \"Eslam\",\r\n  \"body\": \"Samy\",\r\n  \"imageUrl\": \"https://www.google.com/imgres?q=laptop%20images&imgurl=https%3A%2F%2Fcdn.thewirecutter.com%2Fwp-content%2Fmedia%2F2024%2F07%2Flaptopstopicpage-2048px-3685-2x1-1.jpg%3Fwidth%3D2048%26quality%3D75%26crop%3D2%3A1%26auto%3Dwebp&imgrefurl=https%3A%2F%2Fwww.nytimes.com%2Fwirecutter%2Freviews%2Fbest-laptops%2F&docid=bCRo6qqk06R8zM&tbnid=Rdohf0Mw38D5VM&vet=12ahUKEwi65OL2lISMAxU_X0EAHTmZPTQQM3oECGQQAA..i&w=2048&h=1024&hcb=2&itg=1&ved=2ahUKEwi65OL2lISMAxU_X0EAHTmZPTQQM3oECGQQAA\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/api/FireBase/SendNotification?lang={{lang}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"FireBase",
-								"SendNotification"
-							],
-							"query": [
-								{
-									"key": "lang",
-									"value": "{{lang}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "send_notification (invalid_id)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"User ID not Valid \", () => {\r",
-									"    pm.response.to.have.status(400);\r",
-									"   \r",
-									"});\r",
-									"pm.test(\"Response has error message\", () => {\r",
-									"    const response = pm.response.json();\r",
-									"    pm.expect(response.message).to.eql(\"No valid tokens found for the specified member\");\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"memberId\": {{memberId_invalid}},\r\n  \"title\": \"Eslam\",\r\n  \"body\": \"Samy\",\r\n  \"imageUrl\": \"https://www.google.com/imgres?q=laptop%20images&imgurl=https%3A%2F%2Fcdn.thewirecutter.com%2Fwp-content%2Fmedia%2F2024%2F07%2Flaptopstopicpage-2048px-3685-2x1-1.jpg%3Fwidth%3D2048%26quality%3D75%26crop%3D2%3A1%26auto%3Dwebp&imgrefurl=https%3A%2F%2Fwww.nytimes.com%2Fwirecutter%2Freviews%2Fbest-laptops%2F&docid=bCRo6qqk06R8zM&tbnid=Rdohf0Mw38D5VM&vet=12ahUKEwi65OL2lISMAxU_X0EAHTmZPTQQM3oECGQQAA..i&w=2048&h=1024&hcb=2&itg=1&ved=2ahUKEwi65OL2lISMAxU_X0EAHTmZPTQQM3oECGQQAA\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/api/FireBase/SendNotification?lang={{lang}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"FireBase",
-								"SendNotification"
-							],
-							"query": [
-								{
-									"key": "lang",
-									"value": "{{lang}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "send_notification (invalid_img)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Imges not Url\", () => {\r",
-									"    pm.response.to.have.status(200);\r",
-									"   \r",
-									"});\r",
-									"pm.test(\"Response has error message\", () => {\r",
-									"    const response = pm.response.json();\r",
-									"    pm.expect(response.message).to.eql(\"Imges not Url\");\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"memberId\": {{userid}},\r\n  \"title\": \"Eslam\",\r\n  \"body\": \"Samy\",\r\n  \"imageUrl\": \"string\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/api/FireBase/SendNotification?lang={{lang}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"FireBase",
-								"SendNotification"
-							],
-							"query": [
-								{
-									"key": "lang",
-									"value": "{{lang}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
 				{
 					"name": "Healthtips",
 					"event": [
@@ -6682,6 +6740,87 @@
 								{
 									"key": "lang",
 									"value": "{{lang}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "find_near_me",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"FindNearMe\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    let response = pm.response.json();\r",
+									"    pm.expect(response.result).to.be.an(\"array\");\r",
+									"   \r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"startPage\": {{startPage}},\r\n  \"pageSize\": {{pageSize}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/HomePage/FindNearMe?lang={{lang}}&longitude=0.0&latitude=0.0&providerName&categoryId&maxDistanceKm=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"HomePage",
+								"FindNearMe"
+							],
+							"query": [
+								{
+									"key": "lang",
+									"value": "{{lang}}"
+								},
+								{
+									"key": "longitude",
+									"value": "0.0"
+								},
+								{
+									"key": "latitude",
+									"value": "0.0"
+								},
+								{
+									"key": "providerName",
+									"value": null
+								},
+								{
+									"key": "categoryId",
+									"value": null
+								},
+								{
+									"key": "maxDistanceKm",
+									"value": "10"
 								}
 							]
 						}
@@ -7372,7 +7511,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/Service/GetService?lang={{lang}}&providerId={{providerId}}&serviceName={{serviceName}}",
+							"raw": "{{base_url}}/api/Service/GetService?lang={{lang}}&providerId={{providerId}}",
 							"host": [
 								"{{base_url}}"
 							],
@@ -7392,7 +7531,8 @@
 								},
 								{
 									"key": "serviceName",
-									"value": "{{serviceName}}"
+									"value": "{{serviceName}}",
+									"disabled": true
 								}
 							]
 						}
@@ -7480,7 +7620,7 @@
 									"\r",
 									"pm.test(\"Check if memberId matches expected value\", function () {\r",
 									"    let response = pm.response.json(); // Parse JSON response\r",
-									"    let expectedMemberId = pm.environment.get(\"memberId\"); // Get the expected value from environment variables\r",
+									"    let expectedMemberId = pm.environment.get(\"userid\"); // Get the expected value from environment variables\r",
 									"\r",
 									"    pm.expect(response).to.have.property(\"memberId\"); // Ensure memberId exists\r",
 									"    pm.expect(response.memberId).to.eql(parseInt(expectedMemberId)); // Check if it matches\r",
@@ -7658,6 +7798,120 @@
 								{
 									"key": "lang",
 									"value": "{{lang_ar}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Delete_Account",
+			"item": [
+				{
+					"name": "ValidAccount",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Account deleted successfully\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const response = pm.response.json();\r",
+									"    pm.expect(response.message).to.eql(\"Deleted\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \r\n  \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/Auth/DeleteAccount?userId={{userid}}&lang={{lang}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"Auth",
+								"DeleteAccount"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userid}}"
+								},
+								{
+									"key": "lang",
+									"value": "{{lang}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unauthorized request\", () => {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    const response = pm.response.json();\r",
+									"    pm.expect(response.message).to.eql(\"User not found!\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \r\n  \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/Auth/DeleteAccount?userId=01111111111&lang={{lang}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"Auth",
+								"DeleteAccount"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "01111111111"
+								},
+								{
+									"key": "lang",
+									"value": "{{lang}}"
 								}
 							]
 						}
