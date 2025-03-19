@@ -17,14 +17,17 @@ jobs:
       - name: Install Newman
         run: npm install -g newman
 
-      - name: Create Reports Directory
+      - name: Ensure Reports Directory Exists
         run: mkdir -p reports
 
       - name: Run API Tests
-        run: newman run "https://api.postman.com/collections/14527260-2fc95af7-0b7a-4e2f-89a8-7f3dc2cc9c56?apikey=${{ secrets.POSTMAN_API_KEY }}" --reporters cli,html --reporter-html-export reports/api-test-report.html
+        run: |
+          set -e
+          newman run "https://api.postman.com/collections/14527260-2fc95af7-0b7a-4e2f-89a8-7f3dc2cc9c56?apikey=${{ secrets.POSTMAN_API_KEY }}" \
+          --reporters cli,html --reporter-html-export reports/api-test-report.html
 
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
           name: API-Test-Report
-          path: reports/api-test-report.html
+          path: reports/
