@@ -28,12 +28,10 @@ jobs:
         run: mkdir -p reports
 
       - name: Run API Tests
-        continue-on-error: true  # Ensure the workflow does not fail if tests fail
+        continue-on-error: true  # Prevents workflow from failing if tests fail
         run: |
-          set -e
           newman run "https://api.postman.com/collections/14527260-2fc95af7-0b7a-4e2f-89a8-7f3dc2cc9c56?apikey=${{ secrets.POSTMAN_API_KEY }}" \
-          --environment "https://api.postman.com/environments/14527260-5a93d38f-8c8d-42d5-b617-1bcd0f3d050e?apikey=${{ secrets.POSTMAN_API_KEY }}" \
-          --reporters cli,html --reporter-html-export reports/api-test-report.html || true  # Prevent exit code 1 from failing the workflow
+          --reporters cli,html --reporter-html-export reports/api-test-report.html
           
           # Debugging: Check if the file exists after Newman runs
           ls -la reports/
@@ -43,7 +41,7 @@ jobs:
         with:
           name: API-Test-Report
           path: reports/
-          if-no-files-found: warn  # Warn instead of failing if no files are found
+          if-no-files-found: warn  # Prevents failure if the report is missing
 
       - name: Commit and Push Test Report to Repository
         env:
@@ -57,3 +55,4 @@ jobs:
             git push https://eslamsamy650:${GITHUB_TOKEN}@github.com/eslamsamy650/khusm-api-tests.git main
           else
             echo "No report found, skipping commit."
+          fi  # <-- Correctly closing the 'if' statement
