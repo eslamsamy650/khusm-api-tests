@@ -48,7 +48,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git config --global user.email "eslamsamy650@github.com"
-          git config --global user.name "eslamsam650"
+          git config --global user.name "eslamsamy650"
           git add reports/api-test-report.html || echo "No changes to add"
           git commit -m "Add latest API test report" || echo "No changes to commit"
           git push origin main || echo "Push failed, check permissions"
