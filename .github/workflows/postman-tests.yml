@@ -17,7 +17,7 @@ jobs:
       - name: Install Newman and HTML Reporter
         run: |
           npm install -g newman
-          npm install -g newman-reporter-html
+          npm install -g newman-reporter-html  # Install HTML reporter
 
       - name: Verify Newman Installation
         run: |
@@ -44,9 +44,11 @@ jobs:
           if-no-files-found: warn  # Don't fail if no report is found
 
       - name: Commit and Push Report
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git config --global user.email "eslamsamy650@github.com"
-          git config --global user.name "eslamsamy650"
+          git config --global user.name "eslamsam650"
           git add reports/api-test-report.html || echo "No changes to add"
           git commit -m "Add latest API test report" || echo "No changes to commit"
           git push origin main || echo "Push failed, check permissions"
