@@ -52,3 +52,4 @@ jobs:
             git push
           else
             echo "No report found, skipping commit."
+          fi  # ✅ Added 'fi' to properly close 'if' statement
