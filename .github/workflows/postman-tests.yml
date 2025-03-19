@@ -51,7 +51,7 @@ jobs:
           if [ -f reports/api-test-report.html ]; then
             git config --global user.email "eslamsamy650@gmail.com"
             git config --global user.name "eslamsamy650"
-            git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/eslamsamy650/khusm-api-tests.git
+            git remote set-url origin https://x-access-token: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@github.com/eslamsamy650/khusm-api-tests.git
             git add reports/api-test-report.html
             git commit -m "Add latest API test report"
             git push origin main
