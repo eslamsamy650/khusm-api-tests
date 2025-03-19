@@ -17,7 +17,7 @@ jobs:
       - name: Install Newman and HTML Reporter
         run: |
           npm install -g newman
-          npm install -g newman-reporter-html  # Install HTML reporter
+          npm install -g newman-reporter-html
 
       - name: Verify Newman Installation
         run: |
@@ -31,8 +31,7 @@ jobs:
         run: |
           set -e
           newman run "https://api.postman.com/collections/14527260-2fc95af7-0b7a-4e2f-89a8-7f3dc2cc9c56?apikey=${{ secrets.POSTMAN_API_KEY }}" \
-          --environment "https://api.postman.com/environments/14527260-5a93d38f-8c8d-42d5-b617-1bcd0f3d050e?apikey=${{ secrets.POSTMAN_API_KEY }}" \
-          --reporters cli,html --reporter-html-export reports/api-test-report.html || true
+          --reporters cli,html --reporter-html-export reports/api-test-report.html
           
           # Debugging: Check if the file exists after Newman runs
           ls -la reports/
@@ -42,19 +41,12 @@ jobs:
         with:
           name: API-Test-Report
           path: reports/
-          if-no-files-found: warn  # Warn instead of failing if no report is found
+          if-no-files-found: warn  # Don't fail if no report is found
 
-      - name: Commit and Push Test Report to Repository
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}  # Using GitHub secret token
+      - name: Commit and Push Report
         run: |
-          if [ -f reports/api-test-report.html ]; then
-            git config --global user.email "eslamsamy650@gmail.com"
-            git config --global user.name "eslamsamy650"
-            git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/eslamsamy650/khusm-api-tests.git
-            git add reports/api-test-report.html
-            git commit -m "Add latest API test report"
-            git push origin main
-          else
-            echo "No report found, skipping commit."
-          fi
+          git config --global user.email "eslamsamy650@github.com"
+          git config --global user.name "eslamsamy650"
+          git add reports/api-test-report.html || echo "No changes to add"
+          git commit -m "Add latest API test report" || echo "No changes to commit"
+          git push origin main || echo "Push failed, check permissions"
