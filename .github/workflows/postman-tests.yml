@@ -14,11 +14,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install Newman
-        run: npm install -g newman
+      - name: Install Newman and HTML Reporter
+        run: |
+          npm install -g newman
+          npm install -g newman-reporter-html  # Install HTML reporter
 
       - name: Verify Newman Installation
-        run: newman --version
+        run: |
+          newman --version
+          npm list -g --depth=0  # Check installed global packages
 
       - name: Create Reports Directory
         run: mkdir -p reports
