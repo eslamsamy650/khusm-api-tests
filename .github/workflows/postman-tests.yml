@@ -28,13 +28,11 @@ jobs:
         run: mkdir -p reports
 
       - name: Run API Tests
-        continue-on-error: true  # Prevents job failure even if API tests fail
         run: |
           set -e
           newman run "https://api.postman.com/collections/14527260-2fc95af7-0b7a-4e2f-89a8-7f3dc2cc9c56?apikey=${{ secrets.POSTMAN_API_KEY }}" \
-          -e "https://api.postman.com/environments/14527260-5a93d38f-8c8d-42d5-b617-1bcd0f3d050e?apikey=${{ secrets.POSTMAN_API_KEY }}" \
           --reporters cli,html --reporter-html-export reports/api-test-report.html
-          
+
           # Debugging: Check if the file exists after Newman runs
           ls -la reports/
 
@@ -43,18 +41,24 @@ jobs:
         with:
           name: API-Test-Report
           path: reports/
-          if-no-files-found: warn  # Warn instead of failing if the report is missing
+          if-no-files-found: error  # Fail if report is missing
 
-      - name: Commit and Push Test Report to Repository
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}  # Using the correct secret name
+      - name: Test GitHub Authentication (Hardcoded)
+        run: |
+          git config --global user.email "eslamsamy650@github.com"
+          git config --global user.name "eslamsamy650"
+
+          # Set remote URL with hardcoded token (TEMPORARY)
+          git remote set-url origin https://x-access-token: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@github.com/eslamsamy650/khusm-api-tests.git
+          
+          # Test authentication
+          git ls-remote origin || echo "❌ Authentication failed!"
+
+      - name: Commit and Push Test Report
         run: |
           if [ -f reports/api-test-report.html ]; then
-            git config --global user.email "eslamsamy650@github.com"
-            git config --global user.name "eslamsamy650"
             git add reports/api-test-report.html
             git commit -m "Add latest API test report"
-            git push https://eslamsamy650:${GH_TOKEN}@github.com/eslamsamy650/khusm-api-tests.git main
+            git push || echo "✅ Push skipped (no changes)"
           else
-            echo "No report found, skipping commit."
-          fi
+            echo "No report found, skipping co
