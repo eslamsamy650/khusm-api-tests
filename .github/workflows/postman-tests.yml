@@ -28,14 +28,15 @@ jobs:
         run: mkdir -p reports
 
       - name: Run API Tests
+        continue-on-error: true  # Prevents job failure even if API tests fail
         run: |
-          set +e  # Allow script to continue even if errors occur
+          set -e
           newman run "https://api.postman.com/collections/14527260-2fc95af7-0b7a-4e2f-89a8-7f3dc2cc9c56?apikey=${{ secrets.POSTMAN_API_KEY }}" \
+          -e "https://api.postman.com/environments/14527260-5a93d38f-8c8d-42d5-b617-1bcd0f3d050e?apikey=${{ secrets.POSTMAN_API_KEY }}" \
           --reporters cli,html --reporter-html-export reports/api-test-report.html
           
-          # Debugging: Check if the report was generated
+          # Debugging: Check if the file exists after Newman runs
           ls -la reports/
-        continue-on-error: true  # Ensures the job does not fail on test failures
 
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
@@ -46,14 +47,14 @@ jobs:
 
       - name: Commit and Push Test Report to Repository
         env:
-          GITHUB_PAT: ${{ secrets.GH_PAT }}  # Use the stored Personal Access Token
+          GH_TOKEN: ${{ secrets.GH_PAT }}  # Using the correct secret name
         run: |
           if [ -f reports/api-test-report.html ]; then
             git config --global user.email "eslamsamy650@github.com"
-            git config --global user.name "eslamsam650"
+            git config --global user.name "eslamsamy650"
             git add reports/api-test-report.html
             git commit -m "Add latest API test report"
-            git push https://eslamsamy650:${GITHUB_PAT}@github.com/eslamsamy650/khusm-api-tests.git main
+            git push https://eslamsamy650:${GH_TOKEN}@github.com/eslamsamy650/khusm-api-tests.git main
           else
             echo "No report found, skipping commit."
           fi
